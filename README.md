@@ -253,7 +253,38 @@ GROUP BY Months_Inactive_12_mon
 ![question 4](https://github.com/user-attachments/assets/f8a75b00-9a5d-40e4-862a-bd81469f6b6c)
 ## Insight
 Interestingly, both highly active customers 0 inactive months, churn rate 51.72% and inactive customers 4+ months, churn rate 29.89% exhibit high churn. This suggests churn risk is not isolated to inactivity alone extreme engagement levels (either end) require closer attention.
+## 5. Card Category and Churn
+```SQL
+--- Analysis 5 Is Card Category An Indicator to churn Customers Vs Others 
+SELECT A.Card_Category
+     ,SUM(CASE WHEN CS.Attrition_Flag='attrited customer' THEN A.Months_on_book END
+	   ) AS Attrited_Customers_Duration
 
+    ,COUNT( CASE WHEN CS.Attrition_Flag='Attrited Customer' THEN A.Card_Category END
+	   ) AS Number_of_Customers
+
+	,ROUND(COUNT(CASE WHEN CS.Attrition_Flag = 'attrited customer' THEN 1 END) *100.00/COUNT(*),2
+	   ) AS Churn_Rate
+
+   ,ROUND(COUNT(CASE WHEN CS.Attrition_Flag = 'Existing Customer' THEN 1 END) *100.00/COUNT(*),2
+     ) AS Existing_Customer_Rate
+
+   ,COUNT(CASE WHEN CS.Attrition_Flag = 'Existing Customer'  THEN 1 END
+     ) AS Existing_Customers
+
+FROM Account A
+   INNER JOIN  [Churn Status]  CS ON A.Client_Number=CS.Client_Number
+GROUP BY Card_Category
+  ORDER BY Churn_Rate DESC;
+```
+## Result
+![question 5](https://github.com/user-attachments/assets/cd3457c2-b2e7-462b-bebf-7fb87161e3bc)
+## Insight
+While Blue cardholders represent the largest customer group (1,519 attrited vs 7,917 existing), they have a moderate churn rate of 16.1%.
+Interestingly, Platinum cardholders, though very few in number, have the highest churn rate at 25%, indicating that premium customers are at greater risk despite their small population.
+This highlights the need to:
+- Monitor churn in both volume (Blue) and value (Platinum/Gold) segments.
+- Prioritize personalized retention strategies for high-value customers who may expect exclusive benefits or service.
 
 
 
