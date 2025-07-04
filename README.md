@@ -164,6 +164,7 @@ FROM BankChurners;
 ![churned](https://github.com/user-attachments/assets/2addeffc-cb54-4a7b-a9ac-e8685e248d4b)
 ## Data Analysis and SQL Queries
 This section presents key business questions and their answers using structured SQL queries. Each
+## 1. Overall Churn Rate
 ```SQL
 ---Analysis 1 What is the overall churn rate
 SELECT 
@@ -174,5 +175,85 @@ FROM [Churn Status];
 ![question 1](https://github.com/user-attachments/assets/70d9c69a-f433-400e-a30e-86c0d7f797b4)
 ## Insight:
 The overall churn rate is approximately 16.07%, indicating a moderate level of customer attrition. This serves as a baseline metric to assess customer loyalty and retention performance.
+ ## 2. Age Group with Highest Churn Rat
+```SQL
+----Step 1 Create Age Bracket of Customers
+WITH Age_Bracket AS ( SELECT CS.Attrition_Flag
+                             ,C.Client_Number
+                             ,CASE WHEN C.Customer_Age BETWEEN 26 AND 36 THEN '26-36'
+						  WHEN C.Customer_Age BETWEEN 37 AND 47 THEN '37-47'
+						     WHEN C.Customer_Age BETWEEN 48 AND 58 THEN '48-58'
+							   ELSE '59-73'
+						END AS Age_Group
+					FROM Customers C
+					   INNER JOIN [Churn Status] CS ON CS.Client_Number= C.Client_Number                    
+)
+--- Step 2 Aggregate By Age Group
+SELECT Age_Group
+       ,COUNT(*) AS Total_Customer
+,ROUND(COUNT(CASE WHEN Attrition_Flag = 'Attrited Customer' THEN 1 END)*100.00/COUNT(*),2 ) AS Churned_Rate 
+   FROM Age_Bracket
+GROUP BY Age_Group
+ORDER BY Total_Customer DESC;
+```
+## Result:
+![question 2](https://github.com/user-attachments/assets/51c6ef6d-8a07-4ca0-9eb9-c71f08d2b3ee)
+## Insight:
+Customers aged 48–58 exhibit the highest churn rate (16.54%), suggesting this age group is more likely to leave the bank and should be prioritized in retention strategies.
+## 3. Churn by Income Category
+```SQL
+--- Analysis 3 Is Income Category Of Attrited Customers An Indicator to churn ?
+-- This query calculates churn and retention rates by income category
+-- and the total credit limit held by attrited customers.
+-- Insight helps assess financial risk associated with churn by income group.
+SELECT A.Income_Category
+      ,ROUND(COUNT(CASE WHEN CS.Attrition_Flag = 'Attrited Customer' THEN 1 END)*100.00/COUNT(*),1 
+	  ) AS Churned_Rate
+
+       ,ROUND(COUNT(CASE WHEN CS.Attrition_Flag = 'Existing Customer'  THEN 1 END)*100.00/COUNT(*),1 
+	   ) AS Existing_Customer_Rate
+
+	   ,FORMAT(SUM(CASE WHEN CS.Attrition_Flag='Attrited Customer' THEN A.Credit_Limit ELSE 0 END),'C','NG-US' 
+	    ) AS Total_Credit_Limit
+	  FROM Account A
+	     INNER JOIN [Churn Status] CS ON A.Client_Number=CS.Client_Number
+
+	  GROUP BY A.Income_Category
+	     ORDER BY Churned_Rate DESC;
+```
+## Result:
+![question 3](https://github.com/user-attachments/assets/b692b350-c273-47df-86d1-d4505817951d)
+## Insights
+Customers within the $120K+ and Less than $40K income brackets exhibit higher churn rates. This suggests that both high-income customers (possibly seeking more premium services) and low-income customers (potentially facing financial strain) are at risk, highlighting the need for tailored retention strategies across both ends of the income category.
+## 4. Impact of Inactivity on Churn
+```SQL
+--Analysis 4 Is Customer Inactivity a leading Indicator to Churn ?
+--This query analyzes whether the number of inactive months correlates with churn likelihood.
+
+SELECT  A.Months_Inactive_12_mon
+      ,COUNT(CASE WHEN CS.Attrition_Flag = 'attrited customer' THEN 1 END 
+	    ) AS Churned_Customers
+
+	  ,ROUND(COUNT(CASE WHEN CS.Attrition_Flag = 'attrited customer' THEN 1 END) *100.00/COUNT(*),2 
+	   ) AS Churn_Rate
+
+	 ,COUNT(CASE WHEN CS.Attrition_Flag = 'Existing Customer' THEN 1 END
+	   ) AS  Existing_Customers
+
+	  ,ROUND(COUNT(CASE WHEN CS.Attrition_Flag = 'Existing Customer' THEN 1 END) *100.00/COUNT(*),2
+	   ) AS Existing_customer_Rate
+
+FROM Activities A
+   INNER JOIN [Churn Status] CS ON A.Client_Number=CS.Client_Number
+
+GROUP BY Months_Inactive_12_mon
+   ORDER BY Months_Inactive_12_mon;
+```
+## Result:
+![question 4](https://github.com/user-attachments/assets/f8a75b00-9a5d-40e4-862a-bd81469f6b6c)
+## Insight
+Interestingly, both highly active customers 0 inactive months, churn rate 51.72% and inactive customers 4+ months, churn rate 29.89% exhibit high churn. This suggests churn risk is not isolated to inactivity alone extreme engagement levels (either end) require closer attention.
+
+
 
 
