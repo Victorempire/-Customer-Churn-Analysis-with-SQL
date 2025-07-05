@@ -358,6 +358,7 @@ WHERE CS.Attrition_Flag='Existing Customer';
 ## Insights
 This analysis classifies existing customers into High, Medium, or Low Risk categories based on a combination of income level, months of inactivity, and revolving balance.
 The goal is to flag early signs of churn risk by identifying rising patterns across these key indicators
-
+##  Conclusion
+This analysis reveals that customer churn in banking is influenced by a combination of behavioral, demographic, and financial factors. High churn is observed among both highly inactive and highly active users, indicating that risk exists at both ends of engagement. Income categories (<$40K and $120K+) shows high churn rate, emphasizing the need for tailored engagement strategies. 
 
 
