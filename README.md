@@ -175,7 +175,7 @@ FROM [Churn Status];
 ![question 1](https://github.com/user-attachments/assets/70d9c69a-f433-400e-a30e-86c0d7f797b4)
 ## Insight:
 The overall churn rate is approximately 16.07%, indicating a moderate level of customer attrition. This serves as a baseline metric to assess customer loyalty and retention performance.
- ## 2. Age Group with Highest Churn Rat
+ ## 2. Age Group with Highest Churn Rate
 ```SQL
 ----Step 1 Create Age Bracket of Customers
 WITH Age_Bracket AS ( SELECT CS.Attrition_Flag
